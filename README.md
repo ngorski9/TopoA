@@ -16,6 +16,8 @@ make
 
 If ```path_to_vtk``` is a relative path, then it should be relative to ```CMakeLists.txt``` rather, than the ```build``` folder.
 
+Currently, we do not support Windows. Windows users should be able to use TopoA using WSL.
+
 ## Usage
 Run ```TopoA -h``` for syntax options. In this section, we provide additional clarifications.
 
