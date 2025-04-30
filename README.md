@@ -26,7 +26,7 @@ Run ```TopoA -h``` for syntax options. In this section, we provide additional cl
 
 - TopoA currently can only compress 3D scalar fields in VTK image format (.vti).
 
-- When compressing, you must specify a persistence threshold $\varepsilon$ and error bound $\xi$. Both values should be expressed as a percentage of the range of the scalar field, and should be within $(0,1]$. For example, a value of $\varepsilon = 0.04$ means that the persistence threshold should be 4% of the range.
+- When compressing, you must specify a persistence threshold $\varepsilon$ and error bound $\xi$. Both values should be expressed as a percentage of the range of the scalar field, and should be within $(0,1]$. For example, a value of $\varepsilon = 0.04$ means that the persistence threshold should be 4% of the range. These variables are specified using ```-eps``` and ```-xi``` respectively.
 
 - TopoA creates and deletes many temporary files. By default, this occurs in the CWD. You can specify the folder where these files are created using ```-of```.
 
