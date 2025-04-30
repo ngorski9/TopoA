@@ -9,6 +9,7 @@ Related Publication:
 TopoA uses VTK as a dependency. We suspect that the latest version will suffice, but we have not tested builds later than VTK 9.3.0.
 
 ```
+cd TopoA
 mkdir build && cd build
 cmake -DVTK_DIR=[path_to_vtk] ..
 make
