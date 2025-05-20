@@ -90,14 +90,18 @@ pair<T,double> getMaxErrorAndPSNR( ScalarField<T>* sf1, ScalarField<T>* sf2 ){
 }
 
 template<typename T>
-void printEvaluationToConsole( string file1, string array1, string file2, bool secondIsVtk, double xi_, double epsilon_, Results* results, bool checkCorrectness ){
+void printEvaluationToConsole( string file1, string array1, string file2, bool secondIsVtk, double xi_, double epsilon_, Results* results, bool checkCorrectness, int size_x = -1, int size_y = -1, int size_z = -1 ){
 
     cout << endl << endl << endl << "evaluating" << endl << endl;
 
     ScalarField<T>* sf1 = new ScalarField<T>();
     ScalarField<T>* sf2 = new ScalarField<T>();
 
-    sf1->loadFromVTK(file1, array1);
+    if( size_x == -1 ){
+        sf1->loadFromVTK(file1, array1);
+    } else {
+        sf1->loadFromDat(file1, size_x, size_y, size_z, true);
+    }
 
     if( secondIsVtk ){
         sf2->loadFromVTK(file2, "Scalars_");
@@ -137,7 +141,7 @@ void printEvaluationToConsole( string file1, string array1, string file2, bool s
 }
 
 template<typename T>
-void writeEvaluationToCSV( string csv, string compressor, double compressorParameter, string file1, string array1, string file2, bool secondIsVtk, double xi_, double epsilon_, Results* results, bool iterative, bool iterativeMT, bool logScaleQuantization, int initialPrecision, bool checkCorrectness ){
+void writeEvaluationToCSV( string csv, string compressor, double compressorParameter, string file1, string array1, string file2, bool secondIsVtk, double xi_, double epsilon_, Results* results, bool iterative, bool iterativeMT, bool logScaleQuantization, int initialPrecision, bool checkCorrectness, int size_x = -1, int size_y = -1, int size_z = -1 ){
 
     bool writeHeader = true;
 
@@ -148,7 +152,11 @@ void writeEvaluationToCSV( string csv, string compressor, double compressorParam
     ScalarField<T>* sf1 = new ScalarField<T>();
     ScalarField<T>* sf2 = new ScalarField<T>();
 
-    sf1->loadFromVTK(file1, array1);
+    if( size_x == -1 ){
+        sf1->loadFromVTK(file1, array1);
+    } else {
+        sf1->loadFromDat(file1, size_x, size_y, size_z, true);
+    }
 
     auto loadStart = std::chrono::high_resolution_clock::now();
     if( secondIsVtk ){

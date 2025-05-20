@@ -37,13 +37,19 @@ using namespace std;
 #include "string.h"
 
 template <typename T> 
-Results* compress(string filename, string arrayName, double epsilon_relative, double xi_relative, string outputFilename = "", string outputFolder = ".", string baseCompressor = "SZ3", double compressorParameter = 1, bool verbose = false, int logQuantizeMode = true, int initialPrecision = 0, string baseCompressorFolder = "../../base_compressors"){
+Results* compress(string filename, string arrayName, double epsilon_relative, double xi_relative, string outputFilename = "", string outputFolder = ".", string baseCompressor = "SZ3", double compressorParameter = 1, bool verbose = false, int logQuantizeMode = true, int initialPrecision = 0, string baseCompressorFolder = "../../base_compressors", int size_x = -1, int size_y = -1, int size_z = -1){
     Results* results = new Results();
 
     auto startTime = std::chrono::high_resolution_clock::now();
 
     ScalarField<T> sf;
-    sf.loadFromVTK(filename, arrayName);
+
+    if( size_x == -1 ){
+        sf.loadFromVTK(filename, arrayName);
+    } else {
+        sf.loadFromDat(filename, size_x, size_y, size_z, true);
+    }
+
     int numPoints = sf.size();
 
     T epsilon = epsilon_relative * sf.getDataRange();
@@ -145,10 +151,6 @@ Results* compress(string filename, string arrayName, double epsilon_relative, do
     MergeTreeInfo<T>* splitTreeInfo = contourTreeInfo.splitTreeInfo;
 
     auto contourTreeSplit = std::chrono::high_resolution_clock::now();
-
-    // pair<MergeTreeInfo<T>*,MergeTreeInfo<T>*> mti = getJoinAndSplitTrees<T>(&sf, epsilon, verbose);
-    // MergeTreeInfo<T>* joinTreeInfo = mti.first;
-    // MergeTreeInfo<T>* splitTreeInfo = mti.second;
 
     // create empty scalar field that will store the final values.
     ScalarField<T> sfFinal = ScalarField<T>();

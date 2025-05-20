@@ -25,7 +25,7 @@ void printUsage(){
 }
 
 void printNotEnoughInfo(int i, int stop, string flag){
-    if( i == stop ){
+    if( i >= stop ){
         cout << "TopoA: Please specify a value after option '" + flag + "'." << endl;
         printUsage();
     }
@@ -53,6 +53,11 @@ int main(int argc, char* argv[]){
 
     double xi;
     bool specifiedXi = false;
+
+    int size_x = -1;
+    int size_y = -1;
+    int size_z = -1;
+    bool specifiedDims = false;
 
     string outputFolder = ".";
     bool specifiedOutputFolder = false;
@@ -90,6 +95,19 @@ int main(int argc, char* argv[]){
             printNotEnoughInfo(i, argc-2, "-i");
             filename = args[i+1];
             specifiedFilename = true;
+            i += 2;
+        } else if( args[i] == "-3" ){
+            printNotEnoughInfo(i, argc, "-3");
+            try{
+                size_x = stod(args[i+1]);
+                size_y = stod(args[i+2]);
+                size_z = stod(args[i+3]);
+            } catch (std::invalid_argument){
+                cout << "TopoA: Dimensions x y and z must be integer values." << endl;
+                printUsage();
+            }
+            i += 4;
+            specifiedDims = true;
         } else if( args[i] == "-eps" ){
             printNotEnoughInfo(i, argc-2, "-eps");            
             try{
@@ -99,6 +117,7 @@ int main(int argc, char* argv[]){
                 printUsage();
             }
             specifiedEpsilon = true;
+            i += 2;
         } else if( args[i] == "-xi" ){
             printNotEnoughInfo(i, argc-2, "-xi");
             try{
@@ -108,70 +127,76 @@ int main(int argc, char* argv[]){
                 printUsage();
             }
             specifiedXi = true;
+            i += 2;
         } else if( args[i] == "-of" ){
             printNotEnoughInfo(i, argc-2, "-of");            
             outputFolder = args[i+1];
             specifiedOutputFolder = true;
+            i += 2;
         } else if( args[i] == "-bc" ){
             printNotEnoughInfo(i, argc-2, "-bc");            
             baseCompressor = args[i+1];
             specifiedBaseCompressor = true;
+            i += 2;
         } else if( args[i] == "-bcFolder" ){
             printNotEnoughInfo(i, argc-2, "-bcFolder");
             baseCompressorFolder = args[i+1];
+            i += 2;
         } else if( args[i] == "-bcParameter" ){
             printNotEnoughInfo(i, argc-2, "-bcParameter");
             compressorParameter = stod(args[i+1]);
             specifiedCompressorParameter = true;
+            i += 2;
         } else if( args[i] == "-csv" ){
             printNotEnoughInfo(i, argc-2, "-csv");            
             csv = args[i+1];
             specifiedCsv = true;
+            i += 2;
         } else if( args[i] == "-a" ){
             printNotEnoughInfo(i, argc-2, "-a");
             array = args[i+1];
             specifiedArray = true;
+            i += 2;
         } else if( args[i] == "-f" ){
             doublePrecision = false;
-            --i;
+            i += 1;
         } else if( args[i] == "-verbose" ){
             verbose = true;
-            --i;
+            i += 1;
         } else if( args[i] == "-c" ){
             printNotEnoughInfo(i, argc-2, "-c");
             compressedName = args[i+1];
+            i += 2;
         } else if( args[i] == "-o" ){
             printNotEnoughInfo(i, argc-2, "-o");            
             decompressedName = args[i+1];
+            i += 2;
         } else if( args[i] == "-vtk" ){ 
             saveToVtk = true;
-            --i;
+            i += 1;
         } else if( args[i] == "-iterative" ){
             iterative = true;
-            --i;
+            i += 1;
         } else if( args[i] == "-iterativeMergeTree" ){
             iterativeMergeTree = true;
-            --i;
+            i += 1;
         } else if( args[i] == "-linearQuantization" ){
             logQuantization = false;
             initialPrecision = 1;
-            --i;
+            i += 1;
         } else if( args[i] == "-experiment" ){
             experiment = true;
             checkCorrectness = true;
-            --i;
+            i += 1;
         } else if( args[i] == "-skipCorrectness" ){
             checkCorrectness = false;
-            --i;
+            i += 1;
         } else if( args[i] == "-help" || args[i] == "-h"){
             printHelpMessage();
         }else {
             cout << "Unrecognized argument " << args[i] << endl;
             printUsage();
         }
-
-        ++i;
-        ++i;
     }
 
     // if parameter is not specified, then use the value that we have found to be approximately the best (so far)
@@ -197,6 +222,16 @@ int main(int argc, char* argv[]){
         bad = true;
     }
 
+    if( specifiedArray && specifiedDims ){
+        cout << "TopoA: You specified both an array name and the dimensions. Specify an array name to use VTK format. Specify dimensions to use RAW binary format. Do not specify both." << endl;
+        bad = true;
+    }
+
+    if( specifiedDims && (size_x <= 0 || size_y <= 0 || size_z <= 0) ){
+        cout << "TopoA: Dimensions must all be positive. You specified (x,y,z) = " << size_x << "," << size_y << "," << size_z << ")." << endl;
+        bad = true;
+    }
+
     if(specifiedFilename && !file_exists(filename)){
         cout << "TopoA: Cannot stat input filename '" + filename + "'." << endl;
         bad = true;
@@ -207,8 +242,8 @@ int main(int argc, char* argv[]){
         bad = true;
     }
 
-    if(specifiedFilename && !specifiedArray){
-        cout << "TopoA: When compressing a file, you must specify the name of the array in the VTK file that you are compressing" << endl;
+    if(specifiedFilename && !specifiedArray && !specifiedDims){
+        cout << "TopoA: When compressing a file, you must specify the name of the array name that you are compressing (if using VTK) or the dimensions of the file (if using RAW)." << endl;
         bad = true;
     }
 
@@ -334,11 +369,11 @@ int main(int argc, char* argv[]){
         if( specifiedFilename ){
 
             if( iterative ){
-                results = compressIterative<double>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder);
+                results = compressIterative<double>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder,size_x,size_y,size_z);
             } else if( iterativeMergeTree ){
-                results = compressIterativeMT<double>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder);
+                results = compressIterativeMT<double>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder,size_x,size_y,size_z);
             } else{
-                results = compress<double>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder);
+                results = compress<double>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder,size_x,size_y,size_z);
             }
         }
 
@@ -362,9 +397,9 @@ int main(int argc, char* argv[]){
 
             if( experiment ){
                 if( specifiedCsv ){
-                    writeEvaluationToCSV<double>( csv, baseCompressor, compressorParameter, filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, iterative, iterativeMergeTree, logQuantization, initialPrecision, checkCorrectness );
+                    writeEvaluationToCSV<double>( csv, baseCompressor, compressorParameter, filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, iterative, iterativeMergeTree, logQuantization, initialPrecision, checkCorrectness, size_x, size_y, size_z );
                 } else {
-                    printEvaluationToConsole<double>( filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, checkCorrectness );
+                    printEvaluationToConsole<double>( filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, checkCorrectness, size_x, size_y, size_z );
                 }   
             }
 
@@ -382,11 +417,11 @@ int main(int argc, char* argv[]){
         if( specifiedFilename ){
 
             if( iterative ){
-                results = compressIterative<float>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder);
+                results = compressIterative<float>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder,size_x,size_y,size_z);
             } else if( iterativeMergeTree ){
-                results = compressIterativeMT<float>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder);
+                results = compressIterativeMT<float>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder,size_x,size_y,size_z);
             } else{
-                results = compress<float>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder);
+                results = compress<float>(filename, array, epsilon, xi, compressedName, outputFolder, baseCompressor, compressorParameter, verbose, logQuantization, initialPrecision, baseCompressorFolder,size_x,size_y,size_z);
             }
         }
 
@@ -410,9 +445,9 @@ int main(int argc, char* argv[]){
 
             if( experiment ){
                 if( specifiedCsv ){
-                    writeEvaluationToCSV<float>( csv, baseCompressor, compressorParameter, filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, iterative, iterativeMergeTree, logQuantization, initialPrecision, checkCorrectness );
+                    writeEvaluationToCSV<float>( csv, baseCompressor, compressorParameter, filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, iterative, iterativeMergeTree, logQuantization, initialPrecision, checkCorrectness, size_x, size_y, size_z );
                 } else {
-                    printEvaluationToConsole<float>( filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, checkCorrectness );
+                    printEvaluationToConsole<float>( filename, array, decompressedNameOutput, saveToVtk, xi, epsilon, results, checkCorrectness, size_x, size_y, size_z );
                 }   
             }
 
@@ -439,12 +474,16 @@ void printHelpMessage(){
     cout << endl;
 
     cout << "Specifying Files" << endl;
-    cout << "\t-i <path> : VTK file for compression." << endl;
+    cout << "\t-i <path> : VTK or RAW file for compression." << endl;
     cout << "\t-c <path> : Compressed output." << endl;
     cout << "\t-o <path> : Decompressed output." << endl;
     cout << "\t-a <array name> : " << endl;
-    cout << "\t\tName of the array to compress. Not required if you are" << endl;
-    cout << "\t\tonly decompressing." << endl;
+    cout << "\t\tName of the array to compress if compressing a VTK file." << endl;
+    cout << "\t\tNot required if you are only decompressing." << endl;
+    cout << "\t-3 <x> <y> <z> : " << endl;
+    cout << "\t\tDimensions of the array that you are compressing if you" << endl;
+    cout << "\t\tare using a RAW file. Do not use this with a VTK file." << endl;
+    cout << "\t\tSpecify dimensions using row-major (Fortran) order." << endl;
     cout << "\t-f :" << endl;
     cout << "\t\tSet this flag if the array data uses single precision." << endl;
     cout << "\t\tIf this flag is not set, double precision will be assumed." << endl;

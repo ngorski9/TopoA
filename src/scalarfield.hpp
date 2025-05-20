@@ -16,6 +16,7 @@
 #include <vtkImageData.h>
 #include <vtkXMLImageDataWriter.h>
 #include <vtkPointData.h>
+#include <filesystem>
 using namespace std;
 
 template <typename T> class ScalarField{
@@ -73,7 +74,7 @@ template <typename T> class ScalarField{
             saveImageData<T>( filename, size_x, size_y, size_z, data );
         }
 
-        void loadFromDat(string filename, int size_x_, int size_y_, int size_z_){
+        void loadFromDat(string filename, int size_x_, int size_y_, int size_z_, bool compute_range = false){
             size_x = size_x_;
             size_y = size_y_;
             size_z = size_z_;
@@ -81,9 +82,35 @@ template <typename T> class ScalarField{
             int numPoints = size_x * size_y * size_z;
             data = vector<T>(numPoints);
 
+           int filesize = filesystem::file_size( filename.c_str() );
+           if(filesize != numPoints * sizeof(T)){
+            cout << "TopoA: file size of " << filename << " is " << filesize << " bytes. Given the data type and dimensions provided, it should have size " << (numPoints * sizeof(T)) << " bytes." << endl;
+            cout << "Perhaps you specified the dimensions for a VTK file instead of a RAW file." << endl;
+            exit(1);
+           }
+
             ifstream in( filename.c_str(), ios::binary );
             in.read( reinterpret_cast<char*>(data.data()), numPoints*sizeof(T) );
             in.close();
+
+            if( compute_range ){
+                T minValue = INFINITY;
+                T maxValue = -INFINITY;
+
+                for( int i = 0; i < numPoints; ++i ){
+                    T val = data[i];
+                    
+                    if( val < minValue ){
+                        minValue = val;
+                    }
+
+                    if( val > maxValue ){
+                        maxValue = val;
+                    }
+                }
+
+                dataRange = maxValue - minValue;
+            }
         }
 
         void saveToDat(string filename){
