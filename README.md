@@ -24,7 +24,7 @@ Run ```TopoA -h``` for syntax options. In this section, we provide additional cl
 
 ### Basic Usage
 
-- TopoA currently can only compress 3D scalar fields in VTK image format (.vti) or RAW binary format.
+- TopoA currently can only compress 3D scalar fields in VTK image format (.vti) or RAW binary format. RAW binary scalar fields should be little endian in column-major (Fortran) order.
 
 - The default format for output data is raw binary format. However, you can output to VTK image format (.vti) using the ```-vtk``` flag. Doing so produces slower decompression times.
 
