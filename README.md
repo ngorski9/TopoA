@@ -47,7 +47,7 @@ Run ```TopoA -h``` for syntax options. In this section, we provide additional cl
 	3. Run Neurcomp to compress your scalar field (before running TopoA). Neurcomp will output two files: ```thenet.pth``` and ```thenet.json```.
 	4. Place ```thenet.pth``` and ```thenet.json``` into the folder where TopoA will save its temporary files (see the previous section).
 	5. Copy and paste the .npy file created in step ii into the same folder as ```thenet.pth``` and ```thenet.json```. Rename it to ```dummy.npy```
-		- When decompressing, Neurcomp requires you to specify the original file in order to obtain the size of the original file and measure the reconstruction quality. Because we do not use the reconstruction quality outputted by Neurcomp, you could also make ```dummy.npy``` some other numpy array with the same dimensions as the input file, but with different values.
+		- When decompressing, Neurcomp requires you to specify the original file in order to obtain the size of the original file and measure the reconstruction quality. Because we do not use the reconstruction quality outputted by Neurcomp, we pass into Neurcomp a file called ```dummy.npy```, which is another numpy array with the same dimensions as the input file, but with different values.
 	6. Run TopoA as normal using ```-bc Neurcomp```.
 
 ### Experiment Flag
