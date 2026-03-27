@@ -98,6 +98,20 @@ void decompress(string outputFolder, string inputFilename, string outputFilename
         }
 
         result = system( (baseCompressorFolder + "/zfp " + typeFlag + " -z " + outputFolder + "/rawData.cmp -o " + outputFolder + "/intermediateData.dat -3 " + to_string(size_x) + " " + to_string(size_y) + " " + to_string(size_z) + " -a " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
+    } else if ( baseCompressor == "SPERR" ){
+      
+        string typeFlag;
+        string decompTypeFlag;
+        if( is_same<T,double>::value ){
+            typeFlag = "64";
+            decompTypeFlag = "--decomp_d";
+        } else {
+            typeFlag = "32";
+            decompTypeFlag = "--decomp_f";
+        }
+
+        result = system( (baseCompressorFolder + "/sperr3d " + outputFolder + "/rawData.cmp -d --ftype " + typeFlag + " --dims " + to_string(size_x) + " " + to_string(size_y) + " " + to_string(size_z) + " " + decompTypeFlag + " " + outputFolder + "/intermediateData.dat --pwe " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
+
     } else if( baseCompressor == "TTHRESH" ){
 
         result = system( (baseCompressorFolder + "/tthresh -c " + outputFolder + "/rawData.cmp -o " + outputFolder + "/intermediateData.dat" + systemSuffix).c_str() );

@@ -211,6 +211,8 @@ int main(int argc, char* argv[]){
             compressorParameter = 9;
         } else if( baseCompressor == "CSI" ){
             compressorParameter = 7;
+        } else if( baseCompressor == "SPERR" ){
+            compressorParameter = 1;
         }
     }
 
@@ -277,9 +279,9 @@ int main(int argc, char* argv[]){
         bad = true;
     }
 
-    if( baseCompressor != "ZFP" && baseCompressor != "SZ3" && baseCompressor != "CSI" && baseCompressor != "TTHRESH" && baseCompressor != "Neurcomp" ){
+    if( baseCompressor != "ZFP" && baseCompressor != "SZ3" && baseCompressor != "CSI" && baseCompressor != "TTHRESH" && baseCompressor != "Neurcomp" && baseCompressor != "SPERR"){
         cout << "TopoA: Invalid base compressor '" + baseCompressor + "'." << endl;
-        cout << "\tPlease specify one of: ZFP, SZ3, TTHRESH, CSI, Neurcomp" << endl;
+        cout << "\tPlease specify one of: ZFP, SZ3, TTHRESH, CSI, Neurcomp, SPERR" << endl;
         bad = true;
     }
 
@@ -301,6 +303,10 @@ int main(int argc, char* argv[]){
     if( baseCompressor == "TTHRESH" && !file_exists( baseCompressorFolder + "/tthresh" ) ){
         cout << "TopoA: Cannot stat TTHRESH binary at '" + baseCompressorFolder + "/tthresh'." << endl;
         bad = true;
+    }
+
+    if( baseCompressor == "SPERR" && !file_exists( baseCompressorFolder + "/sperr3d" ) ){
+        cout << "TopoA: Cannot stat SPERR binary at '" + baseCompressorFolder + "/sperr3d'." << endl;
     }
 
     if( baseCompressor == "CSI" ){
@@ -469,7 +475,7 @@ void printHelpMessage(){
 
     cout << endl;
 
-    cout << "-bc : Base compressor. Choose one of: ZFP, SZ3, TTHRESH, CSI, or Neurcomp." << endl;
+    cout << "-bc : Base compressor. Choose one of: ZFP, SZ3, TTHRESH, CSI, SPERR, or Neurcomp." << endl;
 
     cout << endl;
 
@@ -527,7 +533,7 @@ void printHelpMessage(){
     cout << "\t\tscaling quantization." << endl;
     cout << "\t-bcParameter." << endl;
     cout << "\t\tSpecify a parameter used for the base compressor (see paper," << endl;
-    cout << "\t\tsection 5.2). Specifies the value k for SZ3, ZFP, and TTHRESH." << endl;
+    cout << "\t\tsection 5.2). Specifies the value k for SZ3, ZFP, SPERR and TTHRESH." << endl;
     cout << "\t\tSpecifies s for CSI. Specifies 'cluster bits' for Neurcomp." << endl;
     cout << "\t\tDo not specify this if you are only decompressing." << endl;    
     cout << "\t-help, -h : Display this message" << endl;

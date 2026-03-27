@@ -82,6 +82,22 @@ Results* compressIterativeMT(string filename, string arrayName, double epsilon_r
         int result = system( (baseCompressorFolder + "/zfp " + typeFlag + " -i " + outputFolder + "/rawData.dat -z " + outputFolder + "/rawData.cmp -3 " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " -a " + to_string(compressorParameter*xi) + systemSuffix).c_str());
         result = system( (baseCompressorFolder + "/zfp " + typeFlag + " -z " + outputFolder + "/rawData.cmp -o " + outputFolder + "/intermediateData.dat -3 " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " -a " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
 
+    } else if( baseCompressor == "SPERR" ){
+
+        string typeFlag;
+        string decompTypeFlag;
+        if( is_same<T,double>::value ){
+            typeFlag = "64";
+            decompTypeFlag = "--decomp_d";
+        } else {
+            typeFlag = "32";
+            decompTypeFlag = "--decomp_f";
+        }
+
+        sf.saveToDat(outputFolder + "/rawData.dat");
+        int result = system( (baseCompressorFolder + "/sperr3d " + outputFolder + "/rawData.dat -c --ftype " + typeFlag + " --dims " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " --bitstream " + outputFolder + "/rawData.cmp --pwe " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
+        result = system( (baseCompressorFolder + "/sperr3d " + outputFolder + "/rawData.cmp -d --ftype " + typeFlag + " --dims " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " " + decompTypeFlag + " " + outputFolder + "/intermediateData.dat --pwe " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
+
     } else if( baseCompressor == "TTHRESH" ){
 
         string typeFlag;
