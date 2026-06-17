@@ -35,12 +35,12 @@ Run ```TopoA -h``` for syntax options. In this section, we provide additional cl
 
 ### Specifying a Base Compressor
 
-- We define a "base compressor" as the compressor that is augmented by TopoA. Currently, TopoA only supports five base comprssors: [ZFP](https://github.com/LLNL/zfp), [SZ3](https://github.com/szcompressor/SZ3), [TTHRESH](https://github.com/rballester/tthresh), cubic spline interpolation (CSI), and [Neurcomp](https://github.com/matthewberger/neurcomp?tab=readme-ov-file).
-- The base compressor is specified by using the ```-bc``` flag followed by one of: ```ZFP```, ```SZ3```, ```TTHRESH```, ```CSI```, or ```Neurcomp```.
+- We define a "base compressor" as the compressor that is augmented by TopoA. Currently, TopoA supports the following base compressors: [ZFP](https://github.com/LLNL/zfp), [SZ3](https://github.com/szcompressor/SZ3), [HPEZ](https://github.com/JLiu-1/HPEZ-QoZ2.0), [TTHRESH](https://github.com/rballester/tthresh), cubic spline interpolation (CSI), and [Neurcomp](https://github.com/matthewberger/neurcomp?tab=readme-ov-file).
+- The base compressor is specified by using the ```-bc``` flag followed by one of: ```ZFP```, ```SZ3```, ```HPEZ```, ```TTHRESH```, ```CSI```, or ```Neurcomp```.
 - The cubic spline interpolation model is built into TopoA and requires no additional setup.
-- To augment one of ZFP, SZ3, or TTHRESH, you must place the binary executable for that compressor into the CWD.
+- To augment one of ZFP, SZ3, HPEZ, or TTHRESH, you must place the binary executable for that compressor into the CWD.
 	- You can alternatively use ```-bcFolder``` to specify the folder that contains the binary.
-	- The binaries must have their original names i.e. ```sz3```, ```zfp```, and ```tthresh```.
+	- The binaries must have their original names i.e. ```sz3```, ```hpez```, ```zfp```, and ```tthresh```.
 - Neurcomp compresses data by training a neural network. As such, it may be desirable to run Neurcomp on a GPU. To enable the use of GPUs, Neurcomp must be run separately from TopoA. We provide steps below:
 	1. Clone the Neurcomp repo into the same folder as TopoA, or clone it into the folder pointed to by ```-bcFolder```.
 	2. Convert your volume into Numpy format (.npy) so that Neurcomp can compress it.
@@ -55,4 +55,3 @@ Run ```TopoA -h``` for syntax options. In this section, we provide additional cl
 If you plan to benchmark TopoA, it may be convenient to use the ```-experiment``` flag. When used, this flag will cause TopoA to run the compressor and decompressor on a given input data file. It will collect the evaluation metrics from our publication and print them to the console. You can choose to write these files to a csv file using the ```-csv``` flag. If you specify a CSV file that already exists, the results will be appended onto the end of that file.
 
 You do not need to specify filenames for the compressed or decompressed outputs. If you decide not to, then TopoA will use temporary files, and delete them when it is finished.
-

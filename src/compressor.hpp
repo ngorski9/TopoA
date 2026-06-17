@@ -74,6 +74,19 @@ Results* compress(string filename, string arrayName, double epsilon_relative, do
         int result = system( (baseCompressorFolder + "/sz3 " + typeFlag + " -i " + outputFolder + "/rawData.dat -z " + outputFolder + "/rawData.cmp -3 " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " -M ABS " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
         result = system( (baseCompressorFolder + "/sz3 " + typeFlag + " -z " + outputFolder + "/rawData.cmp -o " + outputFolder + "/intermediateData.dat -3 " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " -M ABS " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
 
+    } else if( baseCompressor == "HPEZ" ){
+
+        string typeFlag;
+        if( is_same<T, double>::value ){
+            typeFlag = "-d";
+        } else if( is_same<T, float>::value ){
+            typeFlag = "-f";
+        }
+
+        sf.saveToDat(outputFolder + "/rawData.dat");
+        int result = system( (baseCompressorFolder + "/hpez " + typeFlag + " -i " + outputFolder + "/rawData.dat -z " + outputFolder + "/rawData.cmp -3 " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " -M ABS " + to_string(compressorParameter*xi) + " -q 4" + systemSuffix).c_str() );
+        result = system( (baseCompressorFolder + "/hpez " + typeFlag + " -z " + outputFolder + "/rawData.cmp -o " + outputFolder + "/intermediateData.dat -3 " + to_string(sf.size_x) + " " + to_string(sf.size_y) + " " + to_string(sf.size_z) + " -M ABS " + to_string(compressorParameter*xi) + systemSuffix).c_str() );
+
     } else if( baseCompressor == "ZFP" ){
 
         string typeFlag;

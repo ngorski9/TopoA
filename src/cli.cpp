@@ -201,7 +201,7 @@ int main(int argc, char* argv[]){
 
     // if parameter is not specified, then use the value that we have found to be approximately the best (so far)
     if( !specifiedCompressorParameter ){
-        if( baseCompressor == "SZ3" ){
+        if( baseCompressor == "SZ3" || baseCompressor == "HPEZ" ){
             compressorParameter = 0.25;
         } else if( baseCompressor == "TTHRESH" ){
             compressorParameter = 0.05;
@@ -279,9 +279,9 @@ int main(int argc, char* argv[]){
         bad = true;
     }
 
-    if( baseCompressor != "ZFP" && baseCompressor != "SZ3" && baseCompressor != "CSI" && baseCompressor != "TTHRESH" && baseCompressor != "Neurcomp" && baseCompressor != "SPERR"){
+    if( baseCompressor != "ZFP" && baseCompressor != "SZ3" && baseCompressor != "HPEZ" && baseCompressor != "CSI" && baseCompressor != "TTHRESH" && baseCompressor != "Neurcomp" && baseCompressor != "SPERR"){
         cout << "TopoA: Invalid base compressor '" + baseCompressor + "'." << endl;
-        cout << "\tPlease specify one of: ZFP, SZ3, TTHRESH, CSI, Neurcomp, SPERR" << endl;
+        cout << "\tPlease specify one of: ZFP, SZ3, HPEZ, TTHRESH, CSI, Neurcomp, SPERR" << endl;
         bad = true;
     }
 
@@ -297,6 +297,11 @@ int main(int argc, char* argv[]){
 
     if( baseCompressor == "SZ3" && !file_exists( baseCompressorFolder + "/sz3" ) ){
         cout << "TopoA: Cannot stat SZ3 binary at '" + baseCompressorFolder + "/sz3'." << endl;
+        bad = true;
+    }
+
+    if( baseCompressor == "HPEZ" && !file_exists( baseCompressorFolder + "/hpez" ) ){
+        cout << "TopoA: Cannot stat HPEZ binary at '" + baseCompressorFolder + "/hpez'." << endl;
         bad = true;
     }
 
@@ -475,7 +480,7 @@ void printHelpMessage(){
 
     cout << endl;
 
-    cout << "-bc : Base compressor. Choose one of: ZFP, SZ3, TTHRESH, CSI, SPERR, or Neurcomp." << endl;
+    cout << "-bc : Base compressor. Choose one of: ZFP, SZ3, HPEZ, TTHRESH, CSI, SPERR, or Neurcomp." << endl;
 
     cout << endl;
 
@@ -533,7 +538,8 @@ void printHelpMessage(){
     cout << "\t\tscaling quantization." << endl;
     cout << "\t-bcParameter." << endl;
     cout << "\t\tSpecify a parameter used for the base compressor (see paper," << endl;
-    cout << "\t\tsection 5.2). Specifies the value k for SZ3, ZFP, SPERR and TTHRESH." << endl;
+    cout << "\t\tsection 5.2). Specifies the value k for SZ3, HPEZ, ZFP, SPERR" << endl;
+    cout << "\t\tand TTHRESH." << endl;
     cout << "\t\tSpecifies s for CSI. Specifies 'cluster bits' for Neurcomp." << endl;
     cout << "\t\tDo not specify this if you are only decompressing." << endl;    
     cout << "\t-help, -h : Display this message" << endl;
